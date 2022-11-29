@@ -1,1 +1,1 @@
-# express server with typescript
+# express server using typescript
