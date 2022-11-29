@@ -11,6 +11,7 @@ import swaggerUi from 'swagger-ui-express';
 import { NODE_ENV, HOST, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
 import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
+import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 
 class App {
@@ -29,6 +30,7 @@ class App {
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
+    this.initializeErrorHandling();
   }
 
   public listen() {
@@ -73,7 +75,7 @@ class App {
     const options = {
       swaggerDefinition: {
         info: {
-          title: 'REST API',
+          title: 'REST API DOCS',
           version: '1.0.0',
           description: 'Example docs',
         },
@@ -83,6 +85,11 @@ class App {
 
     const specs = swaggerJSDoc(options);
     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+    logger.info(`Api Docs available at http://${this.host}:${this.port}/api-docs`);
+  }
+
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware);
   }
 }
 
