@@ -10,6 +10,7 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { NODE_ENV, HOST, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
 import { dbConnection } from '@databases';
+import { Routes } from '@interfaces/routes.interface';
 import { logger, stream } from '@utils/logger';
 
 class App {
@@ -18,7 +19,7 @@ class App {
   public host: string;
   public port: string | number;
 
-  constructor() {
+  constructor(routes: Routes[]) {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.host = HOST || 'localhost';
@@ -26,6 +27,7 @@ class App {
 
     this.connectToDatabase();
     this.initializeMiddlewares();
+    this.initializeRoutes(routes);
     this.initializeSwagger();
   }
 
@@ -59,6 +61,12 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+  }
+
+  private initializeRoutes(routes: Routes[]) {
+    routes.forEach(route => {
+      this.app.use('/', route.router);
+    });
   }
 
   private initializeSwagger() {
